@@ -1,0 +1,385 @@
+ 
+ 1. hibernate.dialect  
+  it must be using becuase it help you to write sql  appropriate for your DB
+  íÚäí åæ ÈíÙÈØ sql ááÏÇÊÇ ÈíÒ Çáí ÇäÊ ÈÊÓÊÎÏãåÇ 
+  
+  2. session factory 
+   it have responsability for create sessions 
+  
+  
+  
+     //  @Basic this using for using some opration in variable 
+	/// as fetching 
+	// as be null or no 
+	//@Basic( optional = true or false; fetch = FetchType.EAGER or  FetchType.LAZY , )
+	
+  	// @Transient using for tell hibernate to ignore this propertity 
+	// dont use in mapping or queries 
+	
+		/// hibernate get value from getter
+	// so if you want to make operation to the value can implement that in getter 
+	// but geeter must annotated  @Column
+	
+	@Temporal for date field 
+     @Temporal(TemporalType.DATE) store date only  as 12/2/2018
+	@Temporal(TemporalType.TIME)  store  time only as 12:30
+	@Temporal(TemporalType.TIMESTAMP) stor date and time 
+	
+	
+	by defual hibernate has 255 for string 
+	so to tell hibernate that is huge text and store more than 255
+	use @Lob
+	
+@Id
+@GeneratedValue(strategy = GenerationType.AUTO)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+
+this choose unique value for id 
+
+
+GenerationType.IDENTITY
+
+The GenerationType.IDENTITY is the easiest to use but not the best one from a performance point of view. 
+It relies on an auto-incremented database column and lets the database generate a new value with each insert operation. 
+From a database point of view, this is very efficient because the auto-increment columns are highly optimized, 
+and it doesn’t require any additional statements.
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+
+
+	
+GenerationType.SEQUENCE	
+	this perfect way for generation sequensial id 
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_generator")
+@SequenceGenerator(name="book_generator", sequenceName = "book_seq", allocationSize=50)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+	
+	
+GenerationType.TABLE
+it use when your db   haven't sequense 	
+	
+@Id
+@GeneratedValue(strategy = GenerationType.TABLE, generator = "book_generator")
+@TableGenerator(name="book_generator", table="id_generator", schema="bookstore")
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+
+if your class have objects this will be columns int table as tit's primitive type
+ addres object have (state,street,number)	
+ it stored into table as seperated column but address class must be annotated with @Embeddable
+and object annotated with Embedded
+
+
+if you have two object in the same class have same values as addreess
+ must use @AttributeOverride(name="abde")
+as 
+	@Embedded
+	@AttributeOverrides({
+	@AttributeOverride(name="state" , column="new_state"),
+	@AttributeOverride(name="street" , column="street_state"),
+	@AttributeOverride(name="number" , column="number_new"),
+	)}
+	addreess  ad1
+	@Embedded
+	addreess  ad2
+	
+	
+	for saving  collection as set or linked list 
+	it be @ElementCollection
+	and this will stored into seperated table  it have forgien key for it column
+	
+	
+	Fetch = FetchType.EGAR it get values of field in selecting 
+	Fetch = FetchType.LAZY it  don't get values of field in selecting 
+	
+	
+	
+	if there  is perhapse that entity haven't relation between it and other we must  using @NotFound above relation
+	@NotFound(action=NotFoundAction.IGNORE)   
+	@NotFound(action=NotFoundAction.EXCEPTION)
+	
+	
+	CascadetType 
+	Ïí ÈÞí ÈÊÊÍßã Ýí ÍÊå assoiation 
+	íÚäí ãËáÇ Ýí ÚáÇÞå ãÇ Èíä ãæÙÝ æ ÇáãÉÓÓå 
+	so every company have more employe 
+	so when session save or presist company object int db 
+	must take action about object assossiated with it 
+	
+	CascadetType.Presist
+	mean presist assoisiated object in save or presist action
+	CascadetType.remove 
+	remove object  assoisiated from db 
+		CascadetType.refresh  
+	dont the same in refresh 
+	
+	
+inheritance Stratege 
+
+Single_Table that table name with parent and every child have colunms in parent 
+Table_PerClass  evey class so ever parent or child be table 
+Joined  parent table and chile tables related with parent 
+@MappedSuperclass if you want parent do't have entity in DB only child 
+   
+	
+	
+	/// prestance  this mean when i get object from db and before close session any change in this object(Atached Object)
+	// will be affect in DB
+    ///must before session.getTransaction().commit();
+    when close became object deatached 
+    
+    
+    Object State 
+    1- Transient  object in java  not atached into session 
+    2- peristent object attached into DB and when update it value changed in DB 
+    3- detached Object not presistent with db   if it changed not affect into DB
+    
+    
+    
+    Cascading the one-to-one persist operation
+The CascadeType.PERSIST comes along with the CascadeType.ALL configuration, so we only have to persist the Post entity, and the associated PostDetails entity is persisted as well:
+
+Post post = new Post();
+post.setName("Hibernate Master Class");
+PostDetails details = new PostDetails();
+post.addDetails(details);
+session.persist(post);
+Generating the following output:
+
+INSERT INTO post(id, NAME) 
+VALUES (DEFAULT, Hibernate Master Class'')
+insert into PostDetails (id, created_on, visible) 
+values (default, '2015-03-03 10:17:19.14', false)
+
+-----------------------------------------------------------------------------------------------------
+ Cascading the one-to-one merge operation
+The CascadeType.MERGE is inherited from the CascadeType.ALL setting, 
+so we only have to merge the Post entity and the associated PostDetails is merged as well:
+
+Post post = newPost();
+post.setName("Hibernate Master Class Training Material");
+post.getDetails().setVisible(true);
+doInTransaction(session -> {
+    session.merge(post);
+});
+The merge operation generates the following output:
+
+SELECT onetooneca0_.id     AS id1_3_1_,
+   onetooneca0_.NAME       AS name2_3_1_,
+   onetooneca1_.id         AS id1_4_0_,
+   onetooneca1_.created_on AS created_2_4_0_,
+   onetooneca1_.visible    AS visible3_4_0_
+FROM   post onetooneca0_
+LEFT OUTER JOIN postdetails onetooneca1_ 
+    ON onetooneca0_.id = onetooneca1_.id
+WHERE  onetooneca0_.id = 1
+UPDATE postdetails SET
+    created_on = '2015-03-03 10:20:53.874', visible = true
+WHERE  id = 1
+UPDATE post SET
+    NAME = 'Hibernate Master Class Training Material'
+WHERE  id = 1
+    
+	-----------------
+	
+	Cascading the one-to-one delete operation
+The CascadeType.REMOVE is also inherited from the CascadeType.ALL configuration, so the Post entity deletion triggers a PostDetails entity removal too:
+
+Post post = newPost();
+doInTransaction(session -> {
+    session.delete(post);
+});
+Generating the following output:
+
+delete from PostDetails where id = 1
+delete from Post where id = 1
+----------------------------------------------------
+The one-to-one delete orphan cascading operation
+If a Child entity is dissociated from its Parent, the Child Foreign Key is set to NULL. If we want to have the Child row deleted as well, we have to use the orphan removalsupport.
+
+doInTransaction(session -> {
+    Post post = (Post) session.get(Post.class, 1L);
+    post.removeDetails();
+});
+The orphan removal generates this output:
+
+SELECT onetooneca0_.id         AS id1_3_0_,
+       onetooneca0_.NAME       AS name2_3_0_,
+       onetooneca1_.id         AS id1_4_1_,
+       onetooneca1_.created_on AS created_2_4_1_,
+       onetooneca1_.visible    AS visible3_4_1_
+FROM   post onetooneca0_
+LEFT OUTER JOIN postdetails onetooneca1_
+    ON onetooneca0_.id = onetooneca1_.id
+WHERE  onetooneca0_.id = 1
+delete from PostDetails where id = 1
+
+
+----HQL ---
+Hibernate Query Language 
+write query and Hibernate execute that 
+as 
+Selecting from DB 
+Session session = sessionFactory.openSession();
+session.beginTransaction();
+org.hibernate.Query query = session.createQuery("from Student"); /// session.createQuery("from Student st where st.id>5");
+List students = query.list();
+query.setFirstResult(5);  /// start from record 5  =  offset in SQL
+query.setMaxResults(15); // max number of record in result of query  = limit in sql 
+	
+	query = session.createQuery("from Student where id=? and name=? ");
+		query.setInteger(0, 1);
+		query.setString(1, "abdelrahman");
+		 or 
+ query = session.createQuery("from Student where id= :Tid and name= :Tname ");
+		query.setInteger("Tid", id);
+		query.setString("Tname", name);
+	
+	{
+	session.createQuery("from Student where id=? and name=? "); 
+	better than 
+   session.createQuery("from Student where id="+ id); 
+    to avoid sql injection 
+    if id = " 1 or 1=1"
+     hacker can get all data from DB
+     
+   /////------------@NamedQuery//////////
+    wirte after @Entity 
+    
+    @NamedQuery(name="gettingAllStudentBYID" , query="From Student where id= :inputid")
+  @NamedQueries(
+	{
+	@NamedQuery(name="gettingAllStudentBYName" , query="From Student where name=:NN"),
+	@NamedQuery(name="gettingAllStudentBYAddress" , query="From Student where address=:ADD") 
+	}
+	
+	it encapsulate query and use that by 
+	
+	Query query = session.getNamedQuery("gettingAllStudentBYID");
+		query.setInteger("inputid", 1);
+		List students = query.list();
+
+ --- Native query must be as DB SQL 
+ 
+---- using Criterial in Hibernate  
+ 
+ 
+ session.beginTransaction();
+		org.hibernate.Criteria criteria  = session.createCriteria(Student.class);
+				criteria.add(Restrictions.eq("id", "10"))
+				.add(Restrictions.eq("name", "abdelrahman"));
+				//// from Student whre id =10 and name="abdelrahman"
+		List<Student> students = (List<Student>)criteria.list();
+		there is Restrictions.le("id", "10") <
+		there is Restrictions.gt("id", "10")  >
+			there is Restrictions.isNull("name")  
+			there is Restrictions.isNotNull("name")  
+----- cache in Hibernate 
+1 . frist cache Lebvel mean 
+As per my knowledge Hibernate first level cache means session level cache.
+When we retrieve the same object more than once in same session it will retrieve from Cache.		
+ 
+ 
+ First Level Cache: Hibernate first level cache is associated with the Session object.
+  Hibernate first level cache is enabled by default and there is no way to disable it.
+   However hibernate provides methods through which we can delete selected objects from the cache or clear the cache completely.
+Any object cached in a session will not be visible to other sessions and when the session is closed,
+ all the cached objects will also be lost.
+
+Second Level Cache: Hibernate Second Level cache is disabled by default but we can enable it through configuration.
+ Currently EHCache and Infinispan provides implementation for Hibernate Second level cache and we can use them.
+  We will look into this in the next tutorial for hibernate caching.
+  
+Query Cache: Hibernate can also cache result set of a query.
+Hibernate Query Cache doesn’t cache the state of the actual entities in the cache; 
+it caches only identifier values and results of value type. So it should always be used in conjunction with the second-level cache.
+ 
+ ----------------------
+ First Level Cache in Hibernate Important Points
+
+Important Points about First level cache in Hibernate that can be derived from above program are:
+
+Hibernate First Level cache is enabled by default, there are no configurations needed for this.
+Hibernate first level cache is session specific, that’s why when we are getting the same data in same session there is no query fired whereas in other session query is fired to load the data.
+Hibernate first level cache can have old values, as you can see above that I have put my program to sleep for 10 seconds and in that time I updated the value (name from Pankaj to PankajK) in database but it didn’t get reflected in the same session. But in other session, we got the updated value.
+We can use session evict() method to remove a single object from the hibernate first level cache.
+We can use session clear() method to clear the cache i.e delete all the objects from the cache.
+We can use session contains() method to check if an object is present in the hibernate cache or not, if the object is found in cache, it returns true or else it returns false.
+Since hibernate cache all the objects into session first level cache, while running bulk queries or batch updates it’s necessary to clear the cache at certain intervals to avoid memory issues.
+
+-----------------------
+Second level Cache must add config to 
+<property name="hibernate.cache.use_second_level_cache">true</property>
+  <property name="cache.provider_class">org.hibernate.cache.echCacheProvider</property>
+  in hibernate.cfg.xml
+   must add ehcash properties 
+ and set 
+ @cachable above entity 
+  @cach(usage=cachStratege.readonly or writonly , none )
+ 
+ Before we load any data in our application, all the stats are 0 as expected.
+When we are loading the Employee with id=1 for the first time, 
+it’s first searched into first level cache and then second level cache. 
+If not found in cache, database query is executed and hence fetch count becomes 1. 
+Once the object is loaded, it’s saved into first level cache and second level cache both. 
+So secondary level hit count remains 0 and miss count becomes 1. Notice that put count is 2,
+ that is because Employee object consists of Address too, 
+ so both the objects are saved into second level cache and count is increased to 2.
+Next, we are again loading the employee with id=1, this time it’s present in the first level cache. So you don’t see any database query and all other secondary level cache stats also remains same.
+Next we are using evict() method to remove the employee object from the first level cache, now when we are trying to load it, hibernate finds it in the second level cache. That’s why no database query is fired and fetch count remains 1. Notice that hit count goes from 0 to 2 because both Employee and Address objects are read from the second level cache. Second level miss and put count remains at the earlier value.
+Next we are loading an employee with id=3, database query is executed and fetch count increases to 2, miss count increases from 1 to 2 and put count increases from 2 to 4.
+Next we are trying to load employee with id=1 in another session, Since hibernate second level cache is shared across sessions, it’s found in the second level cache and no database query is executed. Fetch count, miss count and put count remains same whereas hit count increases from 2 to 4.
+
+ ---- query cashe 
+  <property name="hibernate.cache.use_query_cache">true</property>
+ <property name="cache.provider_class">org.hibernate.cache.echCacheProvider</property>
+ org.hibernate.Query query = session.createQuery("from Student where id=:Tid and name=:Tname ");
+		query.setCacheable(true)
+		so every Query the same  will cached  for set config as time of cache 
+ 
+ 
+ cache startege
+ 19.2.2. Strategy: read only
+
+If your application needs to read, but not modify, instances of a persistent class, a read-only cache can be used.
+ This is the simplest and optimal performing strategy. It is even safe for use in a cluster.
+
+19.2.3. Strategy: read/write
+
+If the application needs to update data, a read-write cache might be appropriate.
+ This cache strategy should never be used if serializable transaction isolation level is required.
+  If the cache is used in a JTA environment, you must specify the property hibernate.
+  transaction.manager_lookup_class and naming a strategy for obtaining the JTA TransactionManager. 
+  In other environments, you should ensure that the transaction is completed when  Session.close() or  Session.disconnect() is called.
+   If you want to use this strategy in a cluster, you should ensure that the underlying cache implementation supports locking.
+    The built-in cache providers do not support locking.
+
+19.2.4. Strategy: nonstrict read/write
+
+If the application only occasionally needs to update data 
+(i.e. if it is extremely unlikely that two transactions would try to update the same item simultaneously),
+ and strict transaction isolation is not required, a nonstrict-read-write cache might be appropriate.
+  If the cache is used in a JTA environment, you must specify  hibernate.transaction.manager_lookup_class.
+   In other environments, you should ensure that the transaction is completed when Session.close() or Session.disconnect() is called.
+
+19.2.5. Strategy: transactional
+
+The transactional cache strategy provides support for fully transactional cache providers such as JBoss TreeCache. 
+Such a cache can only be used in a JTA environment and you must specify hibernate.transaction.manager_lookup_class.
+
+ 
+ 
+ @DAC
+
+In short: SID = the unique name of your DB, ServiceName = the alias used when connecting
+Not strictly true.. SID = unique name of the INSTANCE (eg the oracle process running on the machine). Oracle considers the "Database" to be the files.
+
+Service Name = alias to an INSTANCE (or many instances). The main purpose of this is if you are running a cluster, the client can say "connect me to SALES.acme.com", the DBA can on the fly change the number of instances which are available to SALES.acme.com requests, or even move SALES.acme.com to a completely different database without the client needing to change any settings.
+ 
+ 
