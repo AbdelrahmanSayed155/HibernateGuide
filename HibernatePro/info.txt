@@ -143,7 +143,8 @@ Joined  parent table and chile tables related with parent
     
     
     Cascading the one-to-one persist operation
-The CascadeType.PERSIST comes along with the CascadeType.ALL configuration, so we only have to persist the Post entity, and the associated PostDetails entity is persisted as well:
+The CascadeType.PERSIST comes along with the CascadeType.ALL configuration, so we only have to persist the Post entity, 
+and the associated PostDetails entity is persisted as well:
 
 Post post = new Post();
 post.setName("Hibernate Master Class");
@@ -307,7 +308,8 @@ Important Points about First level cache in Hibernate that can be derived from a
 
 Hibernate First Level cache is enabled by default, there are no configurations needed for this.
 Hibernate first level cache is session specific, that’s why when we are getting the same data in same session there is no query fired whereas in other session query is fired to load the data.
-Hibernate first level cache can have old values, as you can see above that I have put my program to sleep for 10 seconds and in that time I updated the value (name from Pankaj to PankajK) in database but it didn’t get reflected in the same session. But in other session, we got the updated value.
+Hibernate first level cache can have old values, as you can see above that I have put my program to sleep for 10 seconds and in that time I updated the value (name from Pankaj to PankajK) 
+in database but it didn’t get reflected in the same session. But in other session, we got the updated value.
 We can use session evict() method to remove a single object from the hibernate first level cache.
 We can use session clear() method to clear the cache i.e delete all the objects from the cache.
 We can use session contains() method to check if an object is present in the hibernate cache or not, if the object is found in cache, it returns true or else it returns false.
@@ -331,10 +333,18 @@ Once the object is loaded, it’s saved into first level cache and second level ca
 So secondary level hit count remains 0 and miss count becomes 1. Notice that put count is 2,
  that is because Employee object consists of Address too, 
  so both the objects are saved into second level cache and count is increased to 2.
-Next, we are again loading the employee with id=1, this time it’s present in the first level cache. So you don’t see any database query and all other secondary level cache stats also remains same.
-Next we are using evict() method to remove the employee object from the first level cache, now when we are trying to load it, hibernate finds it in the second level cache. That’s why no database query is fired and fetch count remains 1. Notice that hit count goes from 0 to 2 because both Employee and Address objects are read from the second level cache. Second level miss and put count remains at the earlier value.
-Next we are loading an employee with id=3, database query is executed and fetch count increases to 2, miss count increases from 1 to 2 and put count increases from 2 to 4.
-Next we are trying to load employee with id=1 in another session, Since hibernate second level cache is shared across sessions, it’s found in the second level cache and no database query is executed. Fetch count, miss count and put count remains same whereas hit count increases from 2 to 4.
+Next, we are again loading the employee with id=1, this time it’s present in the first level cache. 
+So you don’t see any database query and all other secondary level cache stats also remains same.
+Next we are using evict() method to remove the employee object from the first level cache, 
+now when we are trying to load it, hibernate finds it in the second level cache. 
+That’s why no database query is fired and fetch count remains 1. 
+Notice that hit count goes from 0 to 2 because both Employee and Address objects are read from the second level cache.
+ Second level miss and put count remains at the earlier value.
+Next we are loading an employee with id=3, database query is executed and fetch count increases to 2, 
+miss count increases from 1 to 2 and put count increases from 2 to 4.
+Next we are trying to load employee with id=1 in another session, 
+Since hibernate second level cache is shared across sessions, it’s found in the second level cache and no database query is
+ executed. Fetch count, miss count and put count remains same whereas hit count increases from 2 to 4.
 
  ---- query cashe 
   <property name="hibernate.cache.use_query_cache">true</property>
@@ -356,8 +366,10 @@ If the application needs to update data, a read-write cache might be appropriate
  This cache strategy should never be used if serializable transaction isolation level is required.
   If the cache is used in a JTA environment, you must specify the property hibernate.
   transaction.manager_lookup_class and naming a strategy for obtaining the JTA TransactionManager. 
-  In other environments, you should ensure that the transaction is completed when  Session.close() or  Session.disconnect() is called.
-   If you want to use this strategy in a cluster, you should ensure that the underlying cache implementation supports locking.
+  In other environments, you should ensure that the transaction is completed when  Session.close() or  Session.disconnect() 
+  is called.
+   If you want to use this strategy in a cluster, 
+   you should ensure that the underlying cache implementation supports locking.
     The built-in cache providers do not support locking.
 
 19.2.4. Strategy: nonstrict read/write
